@@ -7,6 +7,7 @@
 
 namespace Drupal\facets_hardcode;
 
+use Drupal\Core\Path\AliasManager;
 use Drupal\Core\PathProcessor\InboundPathProcessorInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -19,7 +20,13 @@ class FacetsHardcodePathProcessor implements InboundPathProcessorInterface {
    * {@inheritdoc}
    */
   public function processInbound($path, Request $request) {
-    $path = FacetsHardcodePathHelper::filterFacetsFromPath($path);
+    $alias = \Drupal::service('path.alias_storage')->load([
+      'alias' => $path,
+    ]);
+
+    if (!is_array($alias)) {
+      $path = FacetsHardcodePathHelper::filterFacetsFromPath($path);
+    }
 
     return $path;
   }
