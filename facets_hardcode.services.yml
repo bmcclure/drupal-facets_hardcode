@@ -1,0 +1,5 @@
+services:
+  facets_pretty_paths.path_processor:
+    class: Drupal\facets_hardcode\FacetsHardcodePathProcessor
+    tags:
+      - { name: path_processor_inbound, priority: 800 }

@@ -1,0 +1,5 @@
+facets_hardcode.admin_settings:
+  route_name: facets_hardcode.admin_settings
+  title: 'Facets Hardcode'
+  description: 'Specify paths where certain facets will always be considered active.'
+  parent: system.admin_config_search

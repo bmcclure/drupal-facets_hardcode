@@ -1,0 +1,7 @@
+facets_hardcode.admin_settings:
+  path: /admin/config/search/facets-hardcode
+  defaults:
+    _title: 'Facets Hardcode'
+    _form: \Drupal\facets_hardcode\Form\SettingsForm
+  requirements:
+    _permission: 'administer facets hardcode'

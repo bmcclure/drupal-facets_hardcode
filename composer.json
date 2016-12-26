@@ -1,0 +1,8 @@
+{
+  "name": "drupal/facets_hardcode",
+  "type": "drupal-module",
+  "description": "Facets Hardcode",
+  "homepage": "https://github.com/TopFloorTech/drupal-facets_hardcode",
+  "license": "GPL-2.0+",
+  "minimum-stability": "dev"
+}
