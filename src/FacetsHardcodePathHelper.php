@@ -216,24 +216,18 @@ class FacetsHardcodePathHelper {
   }
 
   public static function filterFacetsFromPath($path) {
-    $facet_source_plugin_manager = \Drupal::service('plugin.manager.facets.facet_source');
-    $facet_sources = $facet_source_plugin_manager->getDefinitions();
-
     $config = \Drupal::config('facets_hardcode.settings');
+    $newLines = '/(\r\n|\r|\n)/';
+    $basePaths = preg_split($newLines, $config->get('facet_source_base_paths'));
 
+    foreach ($basePaths as $basePath) {
+      list($facetSourceId, $facetSourcePath) = explode('|', $basePath);
 
-    // If path starts with an url having a facet source, reroute all subpaths to
-    // the facet source.
-    foreach ($facet_sources as $facet_source) {
-      $facet_source_plugin = $facet_source_plugin_manager->createInstance($facet_source['id']);
-      $facet_source_path = self::getFacetSourcePath($facet_source_plugin, $facet_source['id']);
+      if ($path && strpos($path, $facetSourcePath, 0) === 0) {
+        $facetsPath = str_replace($facetSourcePath, '', $path);
 
-      if ($path && strpos($path, $facet_source_path, 0) === 0) {
-        $facetSourceId = $facet_source['id'];
-        $facetsPath = str_replace($facet_source_path, '', $path);
-
-        if ($path != $facet_source_path) {
-          $path = $facet_source_path;
+        if ($path != $facetSourcePath) {
+          $path = $facetSourcePath;
 
           if ($config->get('leave_facets_in_path')) {
             $filters = self::explodeFilterString($facetsPath, $facetSourceId);
