@@ -7,7 +7,7 @@ use Drupal\facets\FacetSource\FacetSourcePluginInterface;
 use Drupal\facets\Result\ResultInterface;
 
 class FacetsHardcodePathHelper {
-  public static function getFacetSourcePath(FacetSourcePluginInterface $facetSource, $facetSourceId) {
+  public static function getFacetSourcePath($facetSource, $facetSourceId) {
     $sourcePath = NULL;
 
     $config = \Drupal::config('facets_hardcode.settings');
