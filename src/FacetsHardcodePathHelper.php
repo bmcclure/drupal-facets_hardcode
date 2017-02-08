@@ -101,25 +101,31 @@ class FacetsHardcodePathHelper {
     $filters = self::explodeFilterString($filterString, $facetSourceId);
     $unspecifiedValue = $config->get('unspecified_value');
 
+    $keepFacet = self::keepFacetInUrl($facet);
+
     $slug = FacetsHardcodeSlugHelper::getSlugFromValue($filter_key, $result->getRawValue());
 
     if ($result->isActive()) {
-      if (isset($filters['hardcoded'][$filter_key])) {
-        $index = array_search($slug, $filters['hardcoded'][$filter_key]);
+      if ($keepFacet) {
+        $filters = self::removeFacetsAfterActive($filters, $filter_key, $slug);
+      } else {
+        if (isset($filters['hardcoded'][$filter_key])) {
+          $index = array_search($slug, $filters['hardcoded'][$filter_key]);
 
-        if ($index !== FALSE) {
-          $filters['hardcoded'][$filter_key][$index] = $unspecifiedValue;
+          if ($index !== FALSE) {
+            $filters['hardcoded'][$filter_key][$index] = $unspecifiedValue;
+          }
         }
-      }
 
-      if (isset($filters['dynamic'][$filter_key])) {
-        $index = array_search($slug, $filters['dynamic'][$filter_key]);
+        if (isset($filters['dynamic'][$filter_key])) {
+          $index = array_search($slug, $filters['dynamic'][$filter_key]);
 
-        if ($index !== FALSE) {
-          unset($filters['dynamic'][$filter_key][$index]);
+          if ($index !== FALSE) {
+            unset($filters['dynamic'][$filter_key][$index]);
 
-          if (empty($filters['dynamic'][$filter_key])) {
-            unset($filters['dynamic'][$filter_key]);
+            if (empty($filters['dynamic'][$filter_key])) {
+              unset($filters['dynamic'][$filter_key]);
+            }
           }
         }
       }
@@ -146,6 +152,77 @@ class FacetsHardcodePathHelper {
     }
 
     return $filterString;
+  }
+
+  public static function removeFacetsAfterActive(array $filters, $key, $slug) {
+    if (self::isHardcoded($filters, $key, $slug)) {
+      $filters['dynamic'] = [];
+
+      $after = FALSE;
+      foreach ($filters['hardcoded'] as $filterKey => $values) {
+        if ($key == $filterKey) {
+          $after = TRUE;
+          continue;
+        }
+
+        if ($after) {
+          unset($filters['hardcoded'][$filterKey]);
+        }
+      }
+
+      $afterValue = FALSE;
+      foreach ($filters['hardcoded'][$key] as $index => $value) {
+        if ($slug == $value) {
+          $afterValue = TRUE;
+          continue;
+        }
+
+        if ($afterValue) {
+          unset($filters['hardcoded'][$key][$index]);
+        }
+      }
+    } else {
+      $after = FALSE;
+      foreach ($filters['dynamic'] as $filterKey => $values) {
+        if ($key == $filterKey) {
+          $after = TRUE;
+
+          continue;
+        }
+
+        if ($after) {
+          unset($filters['dynamic'][$filterKey]);
+        }
+      }
+
+      $afterValue = FALSE;
+      foreach ($filters['dynamic'][$key] as $index => $value) {
+        if ($slug == $value) {
+          $afterValue = TRUE;
+          continue;
+        }
+
+        if ($afterValue) {
+          unset($filters['dynamic'][$key][$index]);
+        }
+      }
+    }
+
+    return $filters;
+  }
+
+  public static function isHardcoded(array $filters, $key, $slug) {
+    $index = array_search($slug, $filters['hardcoded'][$key]);
+
+    return $index !== FALSE;
+  }
+
+  public static function keepFacetInUrl(FacetInterface $facet) {
+    $config = \Drupal::config('facets_hardcode.settings');
+    $newLines = '/(\r\n|\r|\n)/';
+    $navigationFacets = preg_split($newLines, $config->get('navigation_facets'));
+
+    return (in_array($facet->id(), $navigationFacets));
   }
 
   public static function explodeFilterString($filterString, $facetSourceId) {

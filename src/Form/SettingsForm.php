@@ -26,6 +26,7 @@ class SettingsForm extends ConfigFormBase {
       ->set('facet_entity_types', $form_state->getValue('facet_entity_types'))
       ->set('unspecified_value', $form_state->getValue('unspecified_value'))
       ->set('leave_facets_in_path', (int) $form_state->getValue('leave_facets_in_path'))
+      ->set('navigation_facets', $form_state->getValue('navigation_facets'))
       ->save();
 
     parent::submitForm($form, $form_state);
@@ -89,6 +90,13 @@ class SettingsForm extends ConfigFormBase {
       '#description' => $this->t('The number of hardcoded facets to leave in the path (to match up with actual pages in Drupal).'),
       '#default_value' => $config->get('leave_facets_in_path'),
       '#min' => 0,
+    ];
+
+    $form['navigation_facets'] = [
+      '#type' => 'textarea',
+      '#title' => $this->t('Navigation facets'),
+      '#description' => $this->t('These facet links will always include the facet, even if already engaged.'),
+      '#default_value' => $config->get('navigation_facets'),
     ];
 
     return parent::buildForm($form, $form_state);
