@@ -27,11 +27,12 @@ class FacetsHardcodeSlugHelper {
 
     $slug = FALSE;
 
-    $entityType = self::getEntityType($filterKey);
+    $entity_type = self::getEntityType($filterKey);
+    list($entity_type) = explode(':', $entity_type);
 
-    if (!empty($entityType) && !empty($value)) {
+    if (!empty($entity_type) && !empty($value)) {
       /** @var ContentEntityInterface $entity */
-      $entity = \Drupal::entityTypeManager()->getStorage($entityType)->load($value);
+      $entity = \Drupal::entityTypeManager()->getStorage($entity_type)->load($value);
 
       $slugField = $config->get('slug_field');
 
@@ -48,13 +49,15 @@ class FacetsHardcodeSlugHelper {
 
     $value = FALSE;
 
-    $entityType = self::getEntityType($filterKey);
+    $entity_type = self::getEntityType($filterKey);
+    list($entity_type, $bundle) = explode(':', $entity_type);
 
-    if (!empty($entityType) && !empty($slug)) {
+    if (!empty($entity_type) && !empty($slug)) {
       $slugField = $config->get('slug_field');
 
-      $results = \Drupal::entityTypeManager()->getStorage($entityType)->loadByProperties([
-        $slugField => $slug
+      $results = \Drupal::entityTypeManager()->getStorage($entity_type)->loadByProperties([
+        $slugField => $slug,
+        'vid' => $bundle,
       ]);
 
       if (!empty($results)) {
@@ -75,10 +78,10 @@ class FacetsHardcodeSlugHelper {
     $type = NULL;
 
     foreach ($facetEntityTypes as $facetEntityType) {
-      list($facetId, $entityType) = explode('|', $facetEntityType);
+      list($facetId, $entityType, $bundle) = explode('|', $facetEntityType);
 
       if ($facetUrlAlias == $facetId) {
-        $type = $entityType;
+        $type = $entityType . ':' . $bundle;
 
         break;
       }

@@ -300,11 +300,14 @@ class FacetsHardcodePathHelper {
     foreach ($basePaths as $basePath) {
       list($facetSourceId, $facetSourcePath) = explode('|', $basePath);
 
+      $prefix = self::getFacetedPathPrefix();
+      $path = str_replace($prefix, '', $path);
+
       if ($path && strpos($path, $facetSourcePath, 0) === 0) {
         $facetsPath = str_replace($facetSourcePath, '', $path);
 
         if ($path != $facetSourcePath) {
-          $path = $facetSourcePath;
+          $path = $prefix . $facetSourcePath;
 
           if ($config->get('leave_facets_in_path')) {
             $filters = self::explodeFilterString($facetsPath, $facetSourceId);
@@ -327,5 +330,45 @@ class FacetsHardcodePathHelper {
     }
 
     return $path;
+  }
+
+  /**
+   * Gets the full faceted path from the current request, minus any prefixes.
+   *
+   * @return string
+   */
+  public static function getFacetedPath() {
+    $path = \Drupal::request()->getPathInfo();
+
+    // Remove any prefix from the path
+    $current_path = \Drupal::service('path.current')->getPath();
+    $result = \Drupal::service('path.alias_manager')->getAliasByPath($current_path);
+    if ($pos = strpos($path, $result)) {
+      $path = substr($path, $pos);
+    }
+
+    return $path;
+  }
+
+  public static function getFacetedPathPrefix() {
+    $path = \Drupal::request()->getPathInfo();
+
+    $prefix = '';
+
+
+    // @todo: Uncomment or remove. If we're not on a real path, this won't help.
+    // Remove any prefix from the path
+    //$current_path = \Drupal::service('path.current')->getPath();
+    //$result = \Drupal::service('path.alias_manager')->getAliasByPath($current_path);
+    //if ($pos = strpos($path, $result)) {
+    //  $prefix = substr($path, 0, $pos);
+    //}
+
+    // Hardcoded for now
+    if (strpos($path, '/es/') === 0) {
+      $prefix = '/es';
+    }
+
+    return $prefix;
   }
 }

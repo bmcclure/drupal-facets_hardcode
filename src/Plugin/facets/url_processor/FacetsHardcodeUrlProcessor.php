@@ -8,6 +8,7 @@
 namespace Drupal\facets_hardcode\Plugin\facets\url_processor;
 
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Url;
 use Drupal\facets\FacetInterface;
 use Drupal\facets\UrlProcessor\UrlProcessorPluginBase;
@@ -84,7 +85,8 @@ class FacetsHardcodeUrlProcessor extends UrlProcessorPluginBase {
       return [];
     }
 
-    $path = $this->request->getPathInfo();
+    $path = FacetsHardcodePathHelper::getFacetedPath();
+    $path_prefix = FacetsHardcodePathHelper::getFacetedPathPrefix();
     $sourcePath = FacetsHardcodePathHelper::getFacetSourcePath($facet->getFacetSource(), $facet->getFacetSourceId());
     $filters = substr($path, (strlen($sourcePath)));
 
@@ -94,7 +96,7 @@ class FacetsHardcodeUrlProcessor extends UrlProcessorPluginBase {
 
       $filters_current_result = FacetsHardcodePathHelper::updateFilterString($facet, $result, $filters_current_result);
 
-      $url = Url::fromUri('base:' . $sourcePath . $filters_current_result)
+      $url = Url::fromUri('base:' . $path_prefix . $sourcePath . $filters_current_result)
         ->setOption('query', $this->request->query->all());
       $result->setUrl($url);
     }
@@ -131,10 +133,8 @@ class FacetsHardcodeUrlProcessor extends UrlProcessorPluginBase {
 
     /** @var FacetInterface $facet */
     $facet = $configuration['facet'];
-
     $facet_source_path = FacetsHardcodePathHelper::getFacetSourcePath($facet->getFacetSource(), $facet->getFacetSourceId());
-
-    $path = $this->request->getPathInfo();
+    $path = FacetsHardcodePathHelper::getFacetedPath();
 
     if(strpos($path, $facet_source_path, 0) === 0) {
       $activeFilters = FacetsHardcodePathHelper::getActiveFilters($path, $facet->getFacetSource(), $facet->getFacetSourceId());
