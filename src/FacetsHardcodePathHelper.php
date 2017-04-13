@@ -7,6 +7,31 @@ use Drupal\facets\FacetSource\FacetSourcePluginInterface;
 use Drupal\facets\Result\ResultInterface;
 
 class FacetsHardcodePathHelper {
+  public static function isFacetPath($path = NULL) {
+    if (is_null($path)) {
+      $path = \Drupal::request()->getPathInfo();
+    }
+
+    $is_facet_path = FALSE;
+
+    $config = \Drupal::config('facets_hardcode.settings');
+    $newLines = '/(\r\n|\r|\n)/';
+    $basePaths = preg_split($newLines, $config->get('facet_source_base_paths'));
+
+    foreach ($basePaths as $basePath) {
+      list(,$facetSourcePath) = explode('|', $basePath);
+
+      $path = str_replace(self::getFacetedPathPrefix(), '', $path);
+
+      if ($path && strpos($path, $facetSourcePath, 0) === 0) {
+        $is_facet_path = TRUE;
+        break;
+      }
+    }
+
+    return $is_facet_path;
+  }
+
   public static function getFacetSourcePath($facetSource, $facetSourceId) {
     $sourcePath = NULL;
 

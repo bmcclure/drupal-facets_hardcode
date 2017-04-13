@@ -1,0 +1,22 @@
+<?php
+
+function facets_hardcode_preprocess_views_pager_with_summary(&$variables) {
+  if (\Drupal\facets_hardcode\FacetsHardcodePathHelper::isFacetPath()) {
+    $faceted_path = \Drupal\facets_hardcode\FacetsHardcodePathHelper::getFacetedPath();
+    $base_path = \Drupal\facets_hardcode\FacetsHardcodePathHelper::filterFacetsFromPath($faceted_path);
+
+    if ($faceted_path != $base_path) {
+      if (isset($variables['items']['pages'])) {
+        foreach ($variables['items']['pages'] as $index => $page) {
+          $variables['items']['pages'][$index]['href'] = str_replace($base_path, $faceted_path, $page['href']);
+        }
+      }
+
+      foreach (['next', 'last', 'first', 'previous'] as $key) {
+        if (isset($variables['items'][$key])) {
+          $variables['items'][$key]['href'] = str_replace($base_path, $faceted_path, $variables['items'][$key]['href']);
+        }
+      }
+    }
+  }
+}

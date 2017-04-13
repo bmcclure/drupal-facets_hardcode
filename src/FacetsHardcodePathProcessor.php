@@ -34,8 +34,6 @@ class FacetsHardcodePathProcessor implements InboundPathProcessorInterface {
       }
     }
 
-    $test = 'this';
-
     return $path;
   }
 }
