@@ -26,7 +26,7 @@ class FacetsHardcodePathProcessor implements InboundPathProcessorInterface {
 
     if (!is_array($alias) && FacetsHardcodePathHelper::isFacetPath($path)) {
       $new_path = FacetsHardcodePathHelper::filterFacetsFromPath($path);
-
+      $new_path = $new_path;
       if ($new_path != $path) {
         \Drupal::request()->attributes->set('_disable_route_normalizer', TRUE);
 

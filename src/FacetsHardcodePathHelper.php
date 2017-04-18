@@ -24,10 +24,17 @@ class FacetsHardcodePathHelper {
       $path = str_replace(self::getFacetedPathPrefix(), '', $path);
 
       if ($path && strpos($path, $facetSourcePath, 0) === 0) {
-        $is_facet_path = TRUE;
+        $suffix = str_replace($facetSourcePath, '', $path);
+        $parts = explode('/', trim($suffix, '/'));
+        if (!isset($parts[1]) || $parts[1] === 'f') {
+          $is_facet_path = TRUE;
+        }
+
         break;
       }
     }
+
+    $hmm = 'hmm';
 
     return $is_facet_path;
   }
