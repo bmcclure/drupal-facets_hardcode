@@ -24,7 +24,7 @@ class FacetsHardcodePathProcessor implements InboundPathProcessorInterface {
       'alias' => $path,
     ]);
 
-    if (!is_array($alias)) {
+    if (!is_array($alias) && FacetsHardcodePathHelper::isFacetPath($path)) {
       $new_path = FacetsHardcodePathHelper::filterFacetsFromPath($path);
 
       if ($new_path != $path) {

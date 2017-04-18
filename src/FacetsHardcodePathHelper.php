@@ -317,16 +317,15 @@ class FacetsHardcodePathHelper {
     return $path;
   }
 
-  public static function filterFacetsFromPath($path) {
+  public static function filterFacetsFromPath($path, $removeLanguagePrefix = TRUE) {
     $config = \Drupal::config('facets_hardcode.settings');
     $newLines = '/(\r\n|\r|\n)/';
     $basePaths = preg_split($newLines, $config->get('facet_source_base_paths'));
+    $prefix = self::getFacetedPathPrefix();
+    $path = str_replace($prefix, '', $path);
 
     foreach ($basePaths as $basePath) {
       list($facetSourceId, $facetSourcePath) = explode('|', $basePath);
-
-      $prefix = self::getFacetedPathPrefix();
-      $path = str_replace($prefix, '', $path);
 
       if ($path && strpos($path, $facetSourcePath, 0) === 0) {
         $facetsPath = str_replace($facetSourcePath, '', $path);
@@ -352,6 +351,10 @@ class FacetsHardcodePathHelper {
           }
         }
       }
+    }
+
+    if (!$removeLanguagePrefix) {
+      $path = $prefix . $path;
     }
 
     return $path;
