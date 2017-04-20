@@ -50,9 +50,13 @@ class FacetsHardcodeSlugHelper {
     $value = FALSE;
 
     $entity_type = self::getEntityType($filterKey);
-    list($entity_type, $bundle) = explode(':', $entity_type);
+    $bundle = NULL;
 
-    if (!empty($entity_type) && !empty($slug)) {
+    if (strpos($entity_type, ':') !== FALSE) {
+      list($entity_type, $bundle) = explode(':', $entity_type);
+    }
+
+    if (!empty($entity_type) && !empty($slug) && !empty($bundle)) {
       $slugField = $config->get('slug_field');
 
       $results = \Drupal::entityTypeManager()->getStorage($entity_type)->loadByProperties([
