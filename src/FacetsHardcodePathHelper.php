@@ -313,9 +313,11 @@ class FacetsHardcodePathHelper {
 
     if (!empty($facets['dynamic'])) {
       $path .= '/' . $config->get('dynamic_facets_url_identifier');
+      ksort($facets['dynamic']);
     }
 
     foreach ($facets['dynamic'] as $key => $values) {
+      sort($values);
       foreach ($values as $value) {
         $path .= "/$key/$value";
       }
