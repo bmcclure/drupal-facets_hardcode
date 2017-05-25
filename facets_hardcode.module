@@ -20,3 +20,16 @@ function facets_hardcode_preprocess_views_pager_with_summary(&$variables) {
     }
   }
 }
+
+/**
+ * Implements hook_entity_view_alter().
+ */
+function facets_hardcode_entity_view_alter(array &$build, Drupal\Core\Entity\EntityInterface $entity, \Drupal\Core\Entity\Display\EntityViewDisplayInterface $display) {
+  \Drupal\facets_hardcode\FacetsHardcodeMetatagHelper::updateCanonicalUrls($build);
+}
+
+function facets_hardcode_preprocess_html(&$variables) {
+  $facet_path = \Drupal\facets_hardcode\FacetsHardcodePathHelper::getFacetedPath();
+
+  \Drupal\facets_hardcode\FacetsHardcodeMetatagHelper::setRobotsMetatag($variables['page'], $facet_path);
+}

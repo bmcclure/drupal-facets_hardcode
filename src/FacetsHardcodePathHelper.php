@@ -34,9 +34,26 @@ class FacetsHardcodePathHelper {
       }
     }
 
-    $hmm = 'hmm';
-
     return $is_facet_path;
+  }
+
+  public static function getFacetSourceIdFromPath($path) {
+    $config = \Drupal::config('facets_hardcode.settings');
+    $new_lines = '/(\r\n|\r|\n)/';
+    $base_paths = preg_split($new_lines, $config->get('facet_source_base_paths'));
+    $faceted_path = FacetsHardcodePathHelper::getFacetedPath($path);
+    $source_id = NULL;
+
+    foreach ($base_paths as $base_path_item) {
+      list($facet_source_id, $base_path) = explode('|', $base_path_item);
+
+      if (strpos($faceted_path, $base_path) === 0) {
+        $source_id = $facet_source_id;
+        break;
+      }
+    }
+
+    return $source_id;
   }
 
   public static function getFacetSourcePath($facetSource, $facetSourceId) {
@@ -129,12 +146,9 @@ class FacetsHardcodePathHelper {
     $config = \Drupal::config('facets_hardcode.settings');
     $filter_key = $facet->getUrlAlias();
     $facetSourceId = $facet->getFacetSourceId();
-
     $filters = self::explodeFilterString($filterString, $facetSourceId);
     $unspecifiedValue = $config->get('unspecified_value');
-
     $keepFacet = self::keepFacetInUrl($facet);
-
     $slug = FacetsHardcodeSlugHelper::getSlugFromValue($filter_key, $result->getRawValue());
 
     if ($result->isActive()) {
@@ -372,10 +386,13 @@ class FacetsHardcodePathHelper {
   /**
    * Gets the full faceted path from the current request, minus any prefixes.
    *
+   * @param string $path
    * @return string
    */
-  public static function getFacetedPath() {
-    $path = \Drupal::request()->getPathInfo();
+  public static function getFacetedPath($path = NULL) {
+    if (is_null($path)) {
+      $path = \Drupal::request()->getPathInfo();
+    }
 
     // Remove any prefix from the path
     $current_path = \Drupal::service('path.current')->getPath();
@@ -387,8 +404,10 @@ class FacetsHardcodePathHelper {
     return $path;
   }
 
-  public static function getFacetedPathPrefix() {
-    $path = \Drupal::request()->getPathInfo();
+  public static function getFacetedPathPrefix($path = NULL) {
+    if (is_null($path)) {
+      $path = \Drupal::request()->getPathInfo();
+    }
 
     $prefix = '';
 

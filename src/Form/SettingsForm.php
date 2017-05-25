@@ -27,6 +27,8 @@ class SettingsForm extends ConfigFormBase {
       ->set('unspecified_value', $form_state->getValue('unspecified_value'))
       ->set('leave_facets_in_path', (int) $form_state->getValue('leave_facets_in_path'))
       ->set('navigation_facets', $form_state->getValue('navigation_facets'))
+      ->set('canonical_facets', $form_state->getValue('canonical_facets'))
+      ->set('canonical_level', $form_state->getValue('canonical_level'))
       ->save();
 
     parent::submitForm($form, $form_state);
@@ -97,6 +99,20 @@ class SettingsForm extends ConfigFormBase {
       '#title' => $this->t('Navigation facets'),
       '#description' => $this->t('These facet links will always include the facet, even if already engaged.'),
       '#default_value' => $config->get('navigation_facets'),
+    ];
+
+    $form['canonical_facets'] = [
+      '#type' => 'textarea',
+      '#title' => $this->t('Canonical facets'),
+      '#description' => $this->t('Enter the url identifiers of the facets to retain in canonical links, one per line.'),
+      '#default_value' => $config->get('canonical_facets'),
+    ];
+
+    $form['canonical_level'] = [
+      '#type' => 'number',
+      '#title' => $this->t('Canonical level'),
+      '#description' => $this->t('How many facets should be retained in the canonical URL of the mete tags as you browse deeper?'),
+      '#default_value' => $config->get('canonical_level'),
     ];
 
     return parent::buildForm($form, $form_state);
