@@ -73,9 +73,9 @@ class FacetsHardcodePathHelper {
       }
     }
 
-    if (is_null($sourcePath)) {
+    //if (is_null($sourcePath)) {
       //$sourcePath = $facetSource->getPath();
-    }
+    //}
 
     return $sourcePath;
   }

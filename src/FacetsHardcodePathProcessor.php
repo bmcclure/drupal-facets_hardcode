@@ -7,7 +7,6 @@
 
 namespace Drupal\facets_hardcode;
 
-use Drupal\Core\Path\AliasManager;
 use Drupal\Core\PathProcessor\InboundPathProcessorInterface;
 use Symfony\Component\HttpFoundation\Request;
 
