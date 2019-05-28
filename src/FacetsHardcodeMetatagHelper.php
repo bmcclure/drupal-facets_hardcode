@@ -44,6 +44,10 @@ class FacetsHardcodeMetatagHelper {
     $base_path = NULL;
 
     foreach ($base_paths as $base_path_item) {
+      if (strpos($base_path_item, '|') === FALSE) {
+        continue;
+      }
+
       list($facet_source_id, $base_path) = explode('|', $base_path_item);
 
       if (strpos($faceted_path, $base_path) === 0) {

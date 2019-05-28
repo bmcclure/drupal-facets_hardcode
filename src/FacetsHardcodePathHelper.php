@@ -19,6 +19,10 @@ class FacetsHardcodePathHelper {
     $basePaths = preg_split($newLines, $config->get('facet_source_base_paths'));
 
     foreach ($basePaths as $basePath) {
+      if (strpos($basePath, '|') === FALSE) {
+        continue;
+      }
+
       list(,$facetSourcePath) = explode('|', $basePath);
 
       $path = str_replace(self::getFacetedPathPrefix(), '', $path);
