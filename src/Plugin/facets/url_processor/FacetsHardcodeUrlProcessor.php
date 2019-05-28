@@ -8,7 +8,6 @@
 namespace Drupal\facets_hardcode\Plugin\facets\url_processor;
 
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Url;
 use Drupal\facets\FacetInterface;
 use Drupal\facets\UrlProcessor\UrlProcessorPluginBase;
@@ -34,13 +33,6 @@ class FacetsHardcodeUrlProcessor extends UrlProcessorPluginBase {
   protected $active_filters = [];
 
   /**
-   * The entity type manager.
-   *
-   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
-   */
-  protected $entityTypeManager;
-
-  /**
    * Constructs a new object.
    *
    * @param array $configuration
@@ -53,11 +45,11 @@ class FacetsHardcodeUrlProcessor extends UrlProcessorPluginBase {
    *   The request object.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager.
+   *
+   * @throws \Drupal\facets\Exception\InvalidProcessorException
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition, Request $request, EntityTypeManagerInterface $entity_type_manager) {
-    parent::__construct($configuration, $plugin_id, $plugin_definition, $request);
-
-    $this->entityTypeManager = $entity_type_manager;
+    parent::__construct($configuration, $plugin_id, $plugin_definition, $request, $entity_type_manager);
 
     $this->initializeActiveFilters($configuration);
   }

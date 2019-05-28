@@ -7,7 +7,6 @@ use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\TypedData\TranslatableInterface;
 use Drupal\facets\FacetInterface;
-use Drupal\facets\Plugin\facets\facet_source\SearchApiDisplay;
 use Drupal\facets\Processor\BuildProcessorInterface;
 use Drupal\facets\Processor\ProcessorPluginBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;

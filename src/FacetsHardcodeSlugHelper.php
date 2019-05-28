@@ -9,6 +9,8 @@ class FacetsHardcodeSlugHelper {
   /**
    * @param $filterKey
    * @return FacetInterface|null
+   *
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    */
   public static function getFacetFromFilterKey($filterKey) {
     $facets = \Drupal::entityTypeManager()
@@ -22,6 +24,12 @@ class FacetsHardcodeSlugHelper {
     return array_shift($facets);
   }
 
+  /**
+   * @param $filterKey
+   * @param $value
+   * @return bool
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   */
   public static function getSlugFromValue($filterKey, $value) {
     $config = \Drupal::config('facets_hardcode.settings');
 
@@ -44,6 +52,12 @@ class FacetsHardcodeSlugHelper {
     return $slug ? $slug : $value;
   }
 
+  /**
+   * @param $filterKey
+   * @param $slug
+   * @return bool|mixed
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   */
   public static function getValueFromSlug($filterKey, $slug) {
     $config = \Drupal::config('facets_hardcode.settings');
 
@@ -94,6 +108,11 @@ class FacetsHardcodeSlugHelper {
     return $type;
   }
 
+  /**
+   * @param $filters
+   * @return mixed
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   */
   public static function replaceIdsWithSlugs($filters) {
     foreach ($filters as $filterKey => $values) {
       foreach ($values as $index => $value) {
@@ -104,6 +123,11 @@ class FacetsHardcodeSlugHelper {
     return $filters;
   }
 
+  /**
+   * @param $filters
+   * @return mixed
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   */
   public static function replaceSlugsWithIds($filters) {
     foreach ($filters as $filterKey => $values) {
       foreach ($values as $index => $value) {
@@ -113,4 +137,5 @@ class FacetsHardcodeSlugHelper {
 
     return $filters;
   }
+
 }
