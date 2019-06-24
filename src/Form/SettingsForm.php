@@ -29,6 +29,7 @@ class SettingsForm extends ConfigFormBase {
       ->set('navigation_facets', $form_state->getValue('navigation_facets'))
       ->set('canonical_facets', $form_state->getValue('canonical_facets'))
       ->set('canonical_level', $form_state->getValue('canonical_level'))
+      ->set('remove_page_parameter', $form_state->getValue('remove_page_parameter'))
       ->save();
 
     parent::submitForm($form, $form_state);
@@ -113,6 +114,13 @@ class SettingsForm extends ConfigFormBase {
       '#title' => $this->t('Canonical level'),
       '#description' => $this->t('How many facets should be retained in the canonical URL of the mete tags as you browse deeper?'),
       '#default_value' => $config->get('canonical_level'),
+    ];
+
+    $form['remove_page_parameter'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Remove "page" parameter'),
+      '#description' => $this->t('Removes any "page" query string that would otherwise be present in a facet link.'),
+      '#default_value' => $config->get('remove_page_parameter'),
     ];
 
     return parent::buildForm($form, $form_state);

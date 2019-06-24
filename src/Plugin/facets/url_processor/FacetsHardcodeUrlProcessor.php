@@ -81,6 +81,7 @@ class FacetsHardcodeUrlProcessor extends UrlProcessorPluginBase {
     $path_prefix = FacetsHardcodePathHelper::getFacetedPathPrefix();
     $sourcePath = FacetsHardcodePathHelper::getFacetSourcePath($facet->getFacetSource(), $facet->getFacetSourceId());
     $filters = substr($path, (strlen($sourcePath)));
+    $config = \Drupal::config('facets_hardcode.settings');
 
     /** @var \Drupal\facets\Result\ResultInterface $result */
     foreach ($results as &$result) {
@@ -88,8 +89,14 @@ class FacetsHardcodeUrlProcessor extends UrlProcessorPluginBase {
 
       $filters_current_result = FacetsHardcodePathHelper::updateFilterString($facet, $result, $filters_current_result);
 
+      $query = $this->request->query->all();
+
+      if ($config->get('remove_page_parameter')) {
+        unset($query['page']);
+      }
+
       $url = Url::fromUri('base:' . $path_prefix . $sourcePath . $filters_current_result)
-        ->setOption('query', $this->request->query->all());
+        ->setOption('query', $query);
       $result->setUrl($url);
     }
 
