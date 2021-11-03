@@ -61,36 +61,83 @@ function facets_hardcode_link_alter(&$variables) {
   if (!$url->isRouted()) {
     $path = $url->toString();
     if (strpos($path, '/facets-hardcode/') === 0) {
-      $config = \Drupal::config('facets_hardcode.settings');
-      $identifier = $config->get('dynamic_facets_url_identifier') ?? 'f';
-
-      $path = str_replace('/facets-hardcode', '', $path);
-      $facets = '';
-      if (strpos($path, "/$identifier/") !== FALSE) {
-        [$path, $facets] = explode("/$identifier/", $path);
-      }
-
-      /** @var \Drupal\Core\Path\AliasManagerInterface $aliasManager */
-      $aliasManager = \Drupal::service('path.alias_manager');
-      $languageManager = \Drupal::languageManager();
-      $currentLanguage = $languageManager->getCurrentLanguage(LanguageInterface::TYPE_CONTENT)->getId();
-
-      $path = $aliasManager->getPathByAlias($path, $languageManager->getDefaultLanguage()->getId());
-      $path = $aliasManager->getAliasByPath($path, $currentLanguage);
-
-      $uri = \Drupal::request()->getSchemeAndHttpHost();
-
-      if ($languageManager->getDefaultLanguage()->getId() !== $currentLanguage) {
-        $uri .= "/$currentLanguage";
-      }
-
-      $uri .= $path;
-
-      if ($facets) {
-        $uri .= "/$identifier/$facets";
-      }
-
+      $uri = facets_hardcode_replace_path($path);
       $variables['url'] = Url::fromUri($uri);
     }
   }
+}
+
+/**
+ * Implements hook_preprocess_menu().
+ */
+function facets_hardcode_preprocess_menu(&$variables) {
+  if (isset($variables['items'])) {
+    $variables['items'] = facets_hardcode_replace_menu_items($variables['items']);
+  }
+}
+
+/**
+ * Replace menu link item below.
+ *
+ * @param array $items
+ *   The items to replace the url.
+ *
+ * @return array
+ *   The items with the url replaced.
+ */
+function facets_hardcode_replace_menu_items($items) {
+  foreach ($items as $key => $item) {
+    if (isset($item['url']) && !$item['url']->isRouted()) {
+      $path = $item['url']->toString();
+      if (strpos($path, '/facets-hardcode/') === 0) {
+        $uri = facets_hardcode_replace_path($path);
+        $items[$key]['url'] = Url::fromUri($uri);
+      }
+    }
+    if (!empty($item['below'])) {
+      $items[$key]['below'] = facets_hardcode_replace_menu_items($item['below']);
+    }
+  }
+  return $items;
+}
+
+/**
+ * Replace 'facets-hardcode' in links.
+ *
+ * @param string $path
+ *   The original path.
+ *
+ * @return string
+ *   The replaced path.
+ */
+function facets_hardcode_replace_path(string $path) {
+  $config = \Drupal::config('facets_hardcode.settings');
+  $identifier = $config->get('dynamic_facets_url_identifier') ?? 'f';
+
+  $path = str_replace('/facets-hardcode', '', $path);
+  $facets = '';
+  if (strpos($path, "/$identifier/") !== FALSE) {
+    [$path, $facets] = explode("/$identifier/", $path);
+  }
+
+  /** @var \Drupal\Core\Path\AliasManagerInterface $aliasManager */
+  $aliasManager = \Drupal::service('path.alias_manager');
+  $languageManager = \Drupal::languageManager();
+  $currentLanguage = $languageManager->getCurrentLanguage(LanguageInterface::TYPE_CONTENT)->getId();
+
+  $path = $aliasManager->getPathByAlias($path, $languageManager->getDefaultLanguage()->getId());
+  $path = $aliasManager->getAliasByPath($path, $currentLanguage);
+
+  $uri = \Drupal::request()->getSchemeAndHttpHost();
+
+  if ($languageManager->getDefaultLanguage()->getId() !== $currentLanguage) {
+    $uri .= "/$currentLanguage";
+  }
+
+  $uri .= $path;
+
+  if ($facets) {
+    $uri .= "/$identifier/$facets";
+  }
+  return $uri;
 }
