@@ -6,6 +6,7 @@ use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\facets\FacetInterface;
 
 class FacetsHardcodeSlugHelper {
+
   /**
    * @param $filterKey
    * @return FacetInterface|null
@@ -73,14 +74,22 @@ class FacetsHardcodeSlugHelper {
     if (!empty($entity_type) && !empty($slug) && !empty($bundle)) {
       $slugField = $config->get('slug_field');
 
-      $results = \Drupal::entityTypeManager()->getStorage($entity_type)->loadByProperties([
-        $slugField => $slug,
-        'vid' => $bundle,
-      ]);
+      $definition = \Drupal::entityTypeManager()->getDefinition($entity_type);
 
-      if (!empty($results)) {
-        $keys = array_keys($results);
-        $value = array_shift($keys);
+      if ($definition) {
+        $bundle_key = $definition->getKey('bundle') ?? 'bundle';
+
+        $results = \Drupal::entityTypeManager()
+          ->getStorage($entity_type)
+          ->loadByProperties([
+            $slugField => $slug,
+            $bundle_key => $bundle,
+          ]);
+
+        if (!empty($results)) {
+          $keys = array_keys($results);
+          $value = array_shift($keys);
+        }
       }
     }
 
