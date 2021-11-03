@@ -1,9 +1,24 @@
 <?php
 
+/**
+ * @file
+ * Contains facets_hardcode.module.
+ */
+
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
+use Drupal\Core\Language\LanguageInterface;
+use Drupal\Core\Url;
+use Drupal\facets_hardcode\FacetsHardcodePathHelper;
+use Drupal\facets_hardcode\FacetsHardcodeMetatagHelper;
+
+/**
+ * Implements hook_preprocess_views_pager_with_summary().
+ */
 function facets_hardcode_preprocess_views_pager_with_summary(&$variables) {
-  if (\Drupal\facets_hardcode\FacetsHardcodePathHelper::isFacetPath()) {
-    $faceted_path = \Drupal\facets_hardcode\FacetsHardcodePathHelper::getFacetedPath();
-    $base_path = \Drupal\facets_hardcode\FacetsHardcodePathHelper::filterFacetsFromPath($faceted_path);
+  if (FacetsHardcodePathHelper::isFacetPath()) {
+    $faceted_path = FacetsHardcodePathHelper::getFacetedPath();
+    $base_path = FacetsHardcodePathHelper::filterFacetsFromPath($faceted_path);
 
     if ($faceted_path != $base_path) {
       if (isset($variables['items']['pages'])) {
@@ -24,12 +39,58 @@ function facets_hardcode_preprocess_views_pager_with_summary(&$variables) {
 /**
  * Implements hook_entity_view_alter().
  */
-function facets_hardcode_entity_view_alter(array &$build, Drupal\Core\Entity\EntityInterface $entity, \Drupal\Core\Entity\Display\EntityViewDisplayInterface $display) {
-  \Drupal\facets_hardcode\FacetsHardcodeMetatagHelper::updateCanonicalUrls($build);
+function facets_hardcode_entity_view_alter(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display) {
+  FacetsHardcodeMetatagHelper::updateCanonicalUrls($build);
 }
 
 function facets_hardcode_preprocess_html(&$variables) {
-  $facet_path = \Drupal\facets_hardcode\FacetsHardcodePathHelper::getFacetedPath();
+  $facet_path = FacetsHardcodePathHelper::getFacetedPath();
 
-  \Drupal\facets_hardcode\FacetsHardcodeMetatagHelper::setRobotsMetatag($variables['page'], $facet_path);
+  FacetsHardcodeMetatagHelper::setRobotsMetatag($variables['page'], $facet_path);
+}
+
+/**
+ * Implements hook_link_alter().
+ *
+ * Checks for links starting with /facets-hardcode/ and outputs a valid facet
+ * URL for the site in the correct language.
+ */
+function facets_hardcode_link_alter(&$variables) {
+  /** @var \Drupal\Core\Url $url */
+  $url = $variables['url'];
+  if (!$url->isRouted()) {
+    $path = $url->toString();
+    if (strpos($path, '/facets-hardcode/') === 0) {
+      $config = \Drupal::config('facets_hardcode.settings');
+      $identifier = $config->get('dynamic_facets_url_identifier') ?? 'f';
+
+      $path = str_replace('/facets-hardcode', '', $path);
+      $facets = '';
+      if (strpos($path, "/$identifier/") !== FALSE) {
+        [$path, $facets] = explode("/$identifier/", $path);
+      }
+
+      /** @var \Drupal\Core\Path\AliasManagerInterface $aliasManager */
+      $aliasManager = \Drupal::service('path.alias_manager');
+      $languageManager = \Drupal::languageManager();
+      $currentLanguage = $languageManager->getCurrentLanguage(LanguageInterface::TYPE_CONTENT)->getId();
+
+      $path = $aliasManager->getPathByAlias($path, $languageManager->getDefaultLanguage()->getId());
+      $path = $aliasManager->getAliasByPath($path, $currentLanguage);
+
+      $uri = \Drupal::request()->getSchemeAndHttpHost();
+
+      if ($languageManager->getDefaultLanguage()->getId() !== $currentLanguage) {
+        $uri .= "/$currentLanguage";
+      }
+
+      $uri .= $path;
+
+      if ($facets) {
+        $uri .= "/$identifier/$facets";
+      }
+
+      $variables['url'] = Url::fromUri($uri);
+    }
+  }
 }
